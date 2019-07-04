@@ -1,26 +1,31 @@
 #!/bin/bash
 
-while getopts "n:v:" opt; do
+while getopts "n:v:h:" opt; do
     case $opt in
         n)
-            VNET=${OPTARG}
+            COUNT=${OPTARG}
             ;;
         v)
             VMNAME=${OPTARG}
             ;;
+        h)
+            VMTEMPLATENAME=${OPTARG}
+            ;;
         \?)
-            printf "Invalid option: -$OPTARG\n\n" >&2
+            printf "\n-n Number\n-v VM Name" >&2
+            printf "\n-h Name to start from\n\n"
             exit 1
             ;;
     esac
 done
 
-echo "--------------------------------------------------------------------------------------------------------------"
-for vm in $(seq 1 ${VNET}); do
     if [[ $(virsh list | grep "$VMNAME") ]]; then
         virsh destroy $VMNAME
-        sleep 5
+        sleep 10
     fi
-    virt-clone --original ${VMNAME} --name "${VMNAME}_${vm}" --auto-clone
+
+echo "--------------------------------------------------------------------------------------------------------------"
+for vm in $(seq 1 ${COUNT}); do
+    virt-clone --original ${VMNAME} --name "${VMTEMPLATENAME}_${vm}" --auto-clone
 done
 printf "\n\n"
